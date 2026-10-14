@@ -10,10 +10,10 @@ export const PRODUCTS: Product[] = [
     discount: 28,
     rating: 4.9,
     reviewsCount: 48,
-    image: '/src/assets/images/product_leather_biker_jacket_1791463879810.jpg',
+    image: '/images/biker.jpg',
     images: [
-      '/src/assets/images/product_leather_biker_jacket_1791463879810.jpg',
-      '/src/assets/images/hero_leather_jacket_campaign_1791463841928.jpg'
+      '/images/biker.jpg',
+      '/images/hero.jpg'
     ],
     description: 'Engineered for the bold. Crafted from hand-selected full-grain cowhide leather, this classic biker jacket features heavy-duty asymmetrical metal zippers, an action back for riding comfort, and an adjustable waist belt. Over time, it conforms to your body, developing a personalized, high-character fit.',
     material: '100% Premium Full-Grain Cowhide Leather (1.2mm thickness)',
@@ -33,9 +33,9 @@ export const PRODUCTS: Product[] = [
     discount: 25,
     rating: 4.8,
     reviewsCount: 32,
-    image: '/src/assets/images/product_leather_bomber_jacket_1791463910508.jpg',
+    image: '/images/bomber.jpg',
     images: [
-      '/src/assets/images/product_leather_bomber_jacket_1791463910508.jpg'
+      '/images/bomber.jpg'
     ],
     description: 'Refined everyday luxury. Made from ultra-soft, premium Italian calf suede, this bomber jacket features a sleek tailored silhouette, thick custom-knit ribbed collar, cuffs, and hem, and custom brass-finished zippers. An effortlessly stylish layer that bridges the gap between casual and formal wear.',
     material: '100% Premium Italian Calf Suede Leather with 100% Silk-Satin lining',
@@ -55,9 +55,9 @@ export const PRODUCTS: Product[] = [
     discount: 23,
     rating: 4.7,
     reviewsCount: 54,
-    image: '/src/assets/images/product_leather_vintage_jacket_1791463946167.jpg',
+    image: '/images/vintage.jpg',
     images: [
-      '/src/assets/images/product_leather_vintage_jacket_1791463946167.jpg'
+      '/images/vintage.jpg'
     ],
     description: 'A jacket with a true story. Our signature hand-distressed, semi-aniline lambskin creates a unique, rich patina that beautifully accentuates the natural grain. Features a streamlined cafe racer band collar and zippered chest detailing.',
     material: '100% Hand-Finished Semi-Aniline Lambskin Leather',
@@ -77,9 +77,9 @@ export const PRODUCTS: Product[] = [
     discount: 23,
     rating: 4.9,
     reviewsCount: 29,
-    image: '/src/assets/images/product_leather_womens_jacket_1791463990835.jpg',
+    image: '/images/womens.jpg',
     images: [
-      '/src/assets/images/product_leather_womens_jacket_1791463990835.jpg'
+      '/images/womens.jpg'
     ],
     description: 'Elegant lines meeting a bold spirit. Tailored precisely to flatter the silhouette, this butter-soft lambskin jacket features elegant asymmetric zippers, custom gold-plated hardware, and adjustable buckled side tabs for a customized waist fit.',
     material: '100% Super-Soft Napa Lambskin Leather',
@@ -99,9 +99,9 @@ export const PRODUCTS: Product[] = [
     discount: 20,
     rating: 5.0,
     reviewsCount: 15,
-    image: '/src/assets/images/product_leather_bomber_jacket_1791463910508.jpg', // high-quality placeholder reuse
+    image: '/images/bomber.jpg',
     images: [
-      '/src/assets/images/product_leather_bomber_jacket_1791463910508.jpg'
+      '/images/bomber.jpg'
     ],
     description: 'The ultimate cold-weather statement. Engineered from heavy-weight merino sheepskin shearling with a cracked leather napa finish on the outer shell and plush, warm shearling fur on the inside. Built for lifelong comfort and unmatched winter protection.',
     material: '100% Genuine Merino Shearling Sheepskin (15mm fur height)',
@@ -121,9 +121,9 @@ export const PRODUCTS: Product[] = [
     discount: 21,
     rating: 4.8,
     reviewsCount: 11,
-    image: '/src/assets/images/product_leather_vintage_jacket_1791463946167.jpg', // high-quality placeholder reuse
+    image: '/images/vintage.jpg',
     images: [
-      '/src/assets/images/product_leather_vintage_jacket_1791463946167.jpg'
+      '/images/vintage.jpg'
     ],
     description: 'Aerodynamic, minimalist sophistication. Crafted for those who appreciate pure, clean design. Stripped of loud hardware, it presents a sleek flat-panel chest, standard snap-collar band, and subtle hand-warmer slip pockets.',
     material: '100% Premium Matte Lambskin Leather',

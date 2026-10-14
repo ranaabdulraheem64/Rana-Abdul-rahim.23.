@@ -829,7 +829,7 @@ ${BRAND_CONFIG.name}`;
             <section className="relative h-[85vh] md:h-[90vh] bg-stone-900 flex items-center overflow-hidden">
               <div className="absolute inset-0 z-0">
                 <img 
-                  src="/src/assets/images/hero_leather_jacket_campaign_1791463841928.jpg" 
+                  src="/images/hero.jpg" 
                   alt="Leather Jack Campaign Studio" 
                   className="w-full h-full object-cover object-center opacity-70 transform scale-105 transition-transform duration-[10s]"
                   referrerPolicy="no-referrer"
@@ -911,10 +911,10 @@ ${BRAND_CONFIG.name}`;
               {/* Responsive Category Grid: horizontal scroll on mobile, 4-col grid on larger viewports */}
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin lg:grid lg:grid-cols-4 lg:gap-6 snap-x">
                 {[
-                  { name: 'Biker Jackets', desc: 'Asymmetric bold designs with rich metal zippers', img: '/src/assets/images/product_leather_biker_jacket_1791463879810.jpg' },
-                  { name: 'Bomber Jackets', desc: 'Premium luxury suedes and thick clean rib trims', img: '/src/assets/images/product_leather_bomber_jacket_1791463910508.jpg' },
-                  { name: 'Vintage Jackets', desc: 'Hand-distressed semi-anilines with rare live patinas', img: '/src/assets/images/product_leather_vintage_jacket_1791463946167.jpg' },
-                  { name: 'Women\'s Jackets', desc: 'Slim-cut, gold zippers, buttery lambskins', img: '/src/assets/images/product_leather_womens_jacket_1791463990835.jpg' },
+                  { name: 'Biker Jackets', desc: 'Asymmetric bold designs with rich metal zippers', img: '/images/biker.jpg' },
+                  { name: 'Bomber Jackets', desc: 'Premium luxury suedes and thick clean rib trims', img: '/images/bomber.jpg' },
+                  { name: 'Vintage Jackets', desc: 'Hand-distressed semi-anilines with rare live patinas', img: '/images/vintage.jpg' },
+                  { name: 'Women\'s Jackets', desc: 'Slim-cut, gold zippers, buttery lambskins', img: '/images/womens.jpg' },
                 ].map((cat, i) => (
                   <div 
                     key={i}
@@ -1115,7 +1115,7 @@ ${BRAND_CONFIG.name}`;
                   <div className="lg:col-span-5 relative">
                     <div className="aspect-[4/3] rounded-lg overflow-hidden border border-stone-800 bg-stone-900 shadow-2xl">
                       <img 
-                        src="/src/assets/images/product_leather_womens_jacket_1791463990835.jpg" 
+                        src="/images/womens.jpg" 
                         alt="High-end tailoring leather craft" 
                         className="w-full h-full object-cover object-center opacity-80"
                         referrerPolicy="no-referrer"
@@ -2241,7 +2241,7 @@ ${BRAND_CONFIG.name}`;
 
               <div className="rounded-2xl overflow-hidden shadow-xl border border-stone-200 dark:border-stone-900 bg-stone-900">
                 <img 
-                  src="/src/assets/images/hero_leather_jacket_campaign_1791463841928.jpg" 
+                  src="/images/hero.jpg" 
                   alt="High fashion leather manufacturing" 
                   className="w-full aspect-[4/3] object-cover opacity-80"
                   referrerPolicy="no-referrer"
