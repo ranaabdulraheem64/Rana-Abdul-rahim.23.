@@ -27,7 +27,8 @@ import {
   Moon, 
   ExternalLink,
   Award,
-  Sparkles
+  Sparkles,
+  Eye
 } from 'lucide-react';
 import { PRODUCTS, REVIEWS } from './data/products';
 import { BRAND_CONFIG } from './config';
@@ -67,6 +68,11 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useLocalStorage<'light' | 'dark'>('leather-jack-theme', 'dark');
 
+  // Quick View Modal state
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [quickViewSize, setQuickViewSize] = useState<string>('M');
+  const [quickViewColor, setQuickViewColor] = useState<string>('');
+
   // Interactive local storage states
   const [cart, setCart] = useLocalStorage<CartItem[]>('leather-jack-cart', []);
   const [wishlist, setWishlist] = useLocalStorage<string[]>('leather-jack-wishlist', []);
@@ -90,8 +96,8 @@ export default function App() {
   const [quantity, setQuantity] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'details' | 'specifications' | 'care'>('details');
 
-  // Checkout info form state
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
+  // Checkout info form state - persisted in LocalStorage
+  const [customerInfo, setCustomerInfo] = useLocalStorage<CustomerInfo>('leather-jack-checkout-info', {
     name: '',
     phone: '',
     email: '',
@@ -251,10 +257,8 @@ export default function App() {
     // 1. Build structured clean text order details message
     let orderItemsText = '';
     cart.forEach((item, index) => {
-      orderItemsText += `${index + 1}. ${item.name}\n   Size: ${item.size}\n   Color: ${item.color}\n   Qty: ${item.quantity}\n   Price: Rs. ${item.price.toLocaleString()}\n\n`;
+      orderItemsText += `${index + 1}. ${item.name}\nSize: ${item.size}\nColor: ${item.color}\nQuantity: ${item.quantity}\nPrice: Rs. ${item.price.toLocaleString()}\n\n`;
     });
-
-    const boldCodeText = appliedDiscountPercentage > 0 ? `Discount (${BRAND_CONFIG.defaultPromoCode.code}): Rs. ${discount.toLocaleString()}` : 'Discount: Rs. 0';
 
     const rawMessage = `Hello ${BRAND_CONFIG.name}! 👋
 
@@ -266,7 +270,7 @@ ${orderItemsText}------------------------
 
 Subtotal: Rs. ${subtotal.toLocaleString()}
 Shipping: Rs. ${shipping === 0 ? 'FREE' : `${shipping.toLocaleString()}`}
-${boldCodeText}
+Discount: Rs. ${discount.toLocaleString()}
 
 TOTAL: Rs. ${total.toLocaleString()}
 
@@ -277,13 +281,13 @@ WhatsApp: ${customerInfo.phone}
 ${customerInfo.email ? `Email: ${customerInfo.email}\n` : ''}
 📍 DELIVERY ADDRESS
 
-Street Address: ${customerInfo.address}
+House/Street: ${customerInfo.address}
 Area: ${customerInfo.area}
 City: ${customerInfo.city}
 Postal Code: ${customerInfo.postalCode}
 
 📝 Notes:
-${customerInfo.notes || 'None'}
+${customerInfo.notes || 'Please call before delivery.'}
 
 Thank you!
 ${BRAND_CONFIG.name}`;
@@ -572,6 +576,248 @@ ${BRAND_CONFIG.name}`;
         </div>
       )}
 
+      {/* MOBILE FILTERS SLIDE-UP DRAWER */}
+      {mobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          <div onClick={() => setMobileFiltersOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"></div>
+          <div className="relative mt-auto w-full max-h-[85vh] bg-stone-900 text-stone-100 rounded-t-3xl shadow-2xl p-6 overflow-y-auto flex flex-col z-50 border-t border-stone-800">
+            <div className="w-12 h-1.5 bg-stone-700 rounded-full mx-auto mb-4 shrink-0"></div>
+            <div className="flex items-center justify-between pb-4 border-b border-stone-800">
+              <div>
+                <h3 className="font-bold font-display text-lg text-gold-100">Filter Silhouettes</h3>
+                <span className="text-[10px] text-stone-400 font-mono">Showing {filteredProducts.length} matching jackets</span>
+              </div>
+              <button 
+                onClick={() => setMobileFiltersOpen(false)} 
+                className="p-2 text-stone-400 hover:text-white min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+                aria-label="Close filters"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Category Filter */}
+            <div className="py-4 border-b border-stone-800">
+              <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider block mb-3 font-mono">Category</span>
+              <div className="flex flex-wrap gap-2">
+                {['All', 'Biker Jackets', 'Bomber Jackets', 'Vintage Jackets', 'Women\'s Jackets', 'Premium Collection', 'New Arrivals'].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setFilters({ ...filters, category: cat })}
+                    className={`px-3 py-2 text-xs font-semibold rounded-lg border transition-all ${
+                      filters.category === cat
+                        ? 'bg-gold-500 text-stone-950 border-gold-500 font-bold'
+                        : 'border-stone-800 text-stone-300 hover:border-stone-700'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Filter */}
+            <div className="py-4 border-b border-stone-800">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider font-mono">Max Price</span>
+                <span className="text-xs font-mono font-bold text-gold-500">Rs. {filters.maxPrice.toLocaleString()}</span>
+              </div>
+              <input
+                type="range"
+                min="15000"
+                max="50000"
+                step="1000"
+                value={filters.maxPrice}
+                onChange={(e) => setFilters({ ...filters, maxPrice: parseInt(e.target.value) })}
+                className="w-full accent-gold-500 cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-stone-400 font-mono mt-1">
+                <span>Rs. 15,000</span>
+                <span>Rs. 50,000</span>
+              </div>
+            </div>
+
+            {/* Size Filter */}
+            <div className="py-4 border-b border-stone-800">
+              <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider block mb-3 font-mono">Size</span>
+              <div className="grid grid-cols-4 gap-2">
+                {['All', 'XS', 'S', 'M', 'L', 'XL', 'XXL'].map((sz) => (
+                  <button
+                    key={sz}
+                    onClick={() => setFilters({ ...filters, size: sz })}
+                    className={`py-2.5 text-xs font-mono font-bold rounded-lg border transition-all ${
+                      filters.size === sz
+                        ? 'bg-gold-500 text-stone-950 border-gold-500 font-bold'
+                        : 'border-stone-800 text-stone-300 hover:border-stone-700'
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-6 mt-auto flex gap-3">
+              <button
+                onClick={() => {
+                  setFilters({ category: 'All', minPrice: 0, maxPrice: 50000, size: 'All', color: 'All' });
+                  setSearchQuery('');
+                }}
+                className="w-1/3 py-3 border border-stone-800 text-stone-400 rounded-lg text-xs font-bold uppercase tracking-wider min-h-[48px] hover:text-white transition-colors"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => setMobileFiltersOpen(false)}
+                className="w-2/3 py-3 bg-gold-500 hover:bg-gold-600 text-stone-950 rounded-lg text-xs font-bold uppercase tracking-widest min-h-[48px] transition-colors"
+              >
+                Show ({filteredProducts.length}) Jackets
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QUICK VIEW MODAL */}
+      {quickViewProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div onClick={() => setQuickViewProduct(null)} className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"></div>
+          <div className="relative w-full max-w-2xl bg-stone-900 border border-stone-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] z-50 animate-in fade-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={() => setQuickViewProduct(null)}
+              className="absolute top-3 right-3 p-2 bg-stone-950/80 text-stone-400 hover:text-white rounded-full z-20 min-w-[36px] min-h-[36px] flex items-center justify-center"
+              aria-label="Close Quick View"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Product Image */}
+            <div className="md:w-1/2 aspect-[4/3] md:aspect-auto relative bg-stone-950 overflow-hidden shrink-0">
+              <img
+                src={quickViewProduct.image}
+                alt={quickViewProduct.name}
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute top-3 left-3 flex flex-col gap-1">
+                {quickViewProduct.isNew && <span className="bg-stone-950 text-gold-100 text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-sm">NEW</span>}
+                {quickViewProduct.isSale && <span className="bg-gold-500 text-stone-950 text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-sm">-{quickViewProduct.discount}%</span>}
+              </div>
+            </div>
+
+            {/* Details Side */}
+            <div className="md:w-1/2 p-6 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-gold-500 font-mono tracking-wider block mb-1">
+                  {quickViewProduct.category}
+                </span>
+                <h3 className="text-lg font-bold font-display text-white mb-2 leading-tight">
+                  {quickViewProduct.name}
+                </h3>
+                <div className="flex items-center gap-1.5 text-gold-500 text-xs mb-3 font-semibold">
+                  <Star className="w-3.5 h-3.5 fill-gold-500 text-gold-500" />
+                  <span className="font-mono">{quickViewProduct.rating}</span>
+                  <span className="text-stone-400">({quickViewProduct.reviewsCount} reviews)</span>
+                </div>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-lg font-bold font-mono text-white">
+                    Rs. {quickViewProduct.price.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-mono text-stone-400 line-through">
+                    Rs. {quickViewProduct.originalPrice.toLocaleString()}
+                  </span>
+                </div>
+                <p className="text-xs text-stone-400 leading-relaxed mb-4 line-clamp-3">
+                  {quickViewProduct.description}
+                </p>
+
+                {/* Color Selector */}
+                <div className="mb-3">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1.5 font-mono">
+                    Color: {quickViewColor || quickViewProduct.colors[0]}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {quickViewProduct.colors.map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setQuickViewColor(c)}
+                        className={`px-2.5 py-1 text-[11px] font-semibold rounded border transition-all ${
+                          (quickViewColor || quickViewProduct.colors[0]) === c
+                            ? 'bg-gold-500 text-stone-950 border-gold-500 font-bold'
+                            : 'border-stone-800 text-stone-300 hover:border-stone-700'
+                        }`}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Size Selector */}
+                <div className="mb-4">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 block mb-1.5 font-mono">
+                    Size: {quickViewSize}
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {quickViewProduct.sizes.map((sz) => (
+                      <button
+                        key={sz}
+                        onClick={() => setQuickViewSize(sz)}
+                        className={`w-9 h-8 text-xs font-mono font-bold rounded border flex items-center justify-center transition-all ${
+                          quickViewSize === sz
+                            ? 'bg-gold-500 text-stone-950 border-gold-500'
+                            : 'border-stone-800 text-stone-300 hover:border-stone-700'
+                        }`}
+                      >
+                        {sz}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-2 border-t border-stone-800">
+                <button
+                  onClick={() => {
+                    addToCart(quickViewProduct, quickViewSize, quickViewColor || quickViewProduct.colors[0], 1);
+                    setQuickViewProduct(null);
+                  }}
+                  className="w-full py-2.5 bg-stone-100 hover:bg-gold-500 text-stone-950 text-xs font-bold uppercase tracking-widest rounded transition-all min-h-[44px]"
+                >
+                  Add to Custom Leather Bag
+                </button>
+                <button
+                  onClick={() => {
+                    const prod = quickViewProduct;
+                    const sz = quickViewSize;
+                    const clr = quickViewColor || prod.colors[0];
+                    setQuickViewProduct(null);
+                    triggerSingleProductWhatsApp(prod, sz, clr);
+                  }}
+                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-widest rounded flex items-center justify-center gap-1.5 transition-all min-h-[44px]"
+                >
+                  <Phone className="w-4 h-4 fill-white text-emerald-600" />
+                  Order on WhatsApp
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedProductId(quickViewProduct.id);
+                    setView('product-detail');
+                    setQuickViewProduct(null);
+                  }}
+                  className="w-full text-center text-[11px] text-stone-400 hover:text-gold-500 font-semibold tracking-wider uppercase py-1"
+                >
+                  View Full Specs & Details →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MAIN VIEW CONTROLLER */}
       <main className="pb-20">
         
@@ -749,6 +995,21 @@ ${BRAND_CONFIG.name}`;
                             aria-label={`Wishlist ${product.name}`}
                           >
                             <Heart className={`w-4.5 h-4.5 ${inWishlist ? 'fill-red-500 text-red-500' : ''}`} />
+                          </button>
+
+                          {/* Quick View Control */}
+                          <button 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              setQuickViewProduct(product);
+                              setQuickViewSize(product.sizes[1] || 'M');
+                              setQuickViewColor(product.colors[0]);
+                            }}
+                            className="absolute bottom-3 left-3 bg-stone-950/85 hover:bg-stone-900 text-gold-100 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded flex items-center gap-1.5 backdrop-blur-sm opacity-90 hover:opacity-100 transition-all z-20 min-h-[32px] cursor-pointer"
+                            title="Quick View"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-gold-500" />
+                            <span>Quick View</span>
                           </button>
                         </div>
 
@@ -1116,6 +1377,21 @@ ${BRAND_CONFIG.name}`;
                             >
                               <Heart className={`w-4.5 h-4.5 ${inWishlist ? 'fill-red-500 text-red-500' : ''}`} />
                             </button>
+
+                            {/* Quick View Control */}
+                            <button 
+                              onClick={(e) => { 
+                                e.stopPropagation(); 
+                                setQuickViewProduct(product);
+                                setQuickViewSize(product.sizes[1] || 'M');
+                                setQuickViewColor(product.colors[0]);
+                              }}
+                              className="absolute bottom-3 left-3 bg-stone-950/85 hover:bg-stone-900 text-gold-100 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded flex items-center gap-1.5 backdrop-blur-sm opacity-90 hover:opacity-100 transition-all z-20 min-h-[32px] cursor-pointer"
+                              title="Quick View"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-gold-500" />
+                              <span>Quick View</span>
+                            </button>
                           </div>
 
                           <div className="p-4 flex-grow flex flex-col justify-between">
@@ -1438,6 +1714,29 @@ ${BRAND_CONFIG.name}`;
                   </div>
                 </div>
               )}
+
+              {/* STICKY BOTTOM PURCHASE BAR FOR MOBILE */}
+              <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-md border-t border-stone-800 px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
+                <div className="min-w-0 flex-1">
+                  <span className="text-[10px] text-stone-400 font-mono block truncate">{product.name} ({selectedSize})</span>
+                  <span className="text-sm font-bold font-mono text-gold-500">Rs. {currentPrice.toLocaleString()}</span>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={() => addToCart(product, selectedSize, initialColor, quantity)}
+                    className="px-3.5 py-2.5 bg-stone-100 hover:bg-gold-500 text-stone-950 text-[10px] font-bold uppercase tracking-wider rounded-lg active:scale-95 transition-all min-h-[44px]"
+                  >
+                    Add to Bag
+                  </button>
+                  <button
+                    onClick={() => triggerSingleProductWhatsApp(product, selectedSize, initialColor)}
+                    className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg flex items-center gap-1.5 active:scale-95 transition-all min-h-[44px]"
+                  >
+                    <Phone className="w-3.5 h-3.5 fill-white text-emerald-600" />
+                    WhatsApp
+                  </button>
+                </div>
+              </div>
 
             </div>
           );
